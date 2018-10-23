@@ -49,10 +49,5 @@
 			<version>0.0.1-SNAPSHOT</version>
 		</dependency>
 	</dependencies>
-	<parent>
-		<groupId>de.madana</groupId>
-		<artifactId>madana-common</artifactId>
-		<version>0.0.1-SNAPSHOT</version>
-		<relativePath>..</relativePath>
-	</parent>
+	<version>unknownversion</version>
 </project>
