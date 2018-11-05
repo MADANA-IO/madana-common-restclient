@@ -128,6 +128,18 @@ public class MDN_RestClient
 		registerToken(oCredentials);
 		return true;
 	}
+	public  boolean validateSession()
+	{
+		try
+		{
+			client.target(MDN_RestClient.REST_URI).path("authentication").path("validate").request().get();
+		}
+		catch(Exception ex)
+		{
+			return false;
+		}
+		 return true;
+	}
 	
 	/**
 	 * Request new password.
