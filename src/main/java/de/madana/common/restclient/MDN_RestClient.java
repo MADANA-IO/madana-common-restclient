@@ -22,20 +22,12 @@ package de.madana.common.restclient;
 
 import java.io.IOException;
 import java.security.KeyStore;
-import java.security.KeyStoreException;
-import java.security.NoSuchAlgorithmException;
 import java.security.PrivateKey;
-import java.security.cert.CertificateException;
 import java.security.cert.X509Certificate;
-import java.security.interfaces.RSAPrivateKey;
-import java.security.spec.InvalidKeySpecException;
 import java.util.Collections;
 import java.util.List;
 
-import javax.net.ssl.KeyManagerFactory;
 import javax.net.ssl.SSLContext;
-import javax.net.ssl.TrustManager;
-import javax.net.ssl.X509TrustManager;
 import javax.ws.rs.client.Client;
 import javax.ws.rs.client.ClientBuilder;
 import javax.ws.rs.client.Entity;
@@ -282,6 +274,7 @@ public class MDN_RestClient
 		checkForError(oResponse, Response.Status.OK.getStatusCode() );
 		MDN_Token oToken = oResponse.readEntity(MDN_Token.class);
 		Feature feature = OAuth2ClientSupport.feature(oToken.getToken());
+		client = ClientBuilder.newClient();
 		client.register(feature);
 
 		return oToken.getToken();
