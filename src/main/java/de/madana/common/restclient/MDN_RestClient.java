@@ -45,7 +45,7 @@ import com.fasterxml.jackson.databind.JsonMappingException;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 
-import de.madana.common.datastructures.MDN_Application;
+import de.madana.common.datastructures.MDN_Certificate;
 import de.madana.common.datastructures.MDN_ErrorMessage;
 import de.madana.common.datastructures.MDN_MailAddress;
 import de.madana.common.datastructures.MDN_OAuthToken;
@@ -186,13 +186,13 @@ public class MDN_RestClient
 	 */
 	public boolean authApplication(X509Certificate oCertificate) throws Exception
 	{
-		MDN_Application oApp = new MDN_Application();
+		MDN_Certificate oApp = new MDN_Certificate();
 		oApp.setPem(CertificateHandler.convertCertificateToPEM(oCertificate));
 		registerToken(oApp);
 		return true;
 	}
 
-	private String registerToken(MDN_Application oApp) throws Exception 
+	private String registerToken(MDN_Certificate oApp) throws Exception 
 	{
 		Response oResponse = client.target(MDN_RestClient.REST_URI).path("authentication").path("application").request(MediaType.APPLICATION_JSON).post(Entity.entity(oApp, MediaType.APPLICATION_JSON)); 
 		checkForError(oResponse, Response.Status.OK.getStatusCode() );
