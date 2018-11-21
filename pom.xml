@@ -48,6 +48,11 @@
 			<artifactId>madana-datastructures</artifactId>
 			<version>0.0.1-SNAPSHOT</version>
 		</dependency>
+		<dependency>
+			<groupId>de.madana.common</groupId>
+			<artifactId>madana-security</artifactId>
+			<version>LATEST</version>
+		</dependency>
 	</dependencies>
 	    	<build>
 		<sourceDirectory>src/main/java</sourceDirectory>

@@ -21,9 +21,21 @@
 package de.madana.common.restclient;
 
 import java.io.IOException;
+import java.security.KeyStore;
+import java.security.KeyStoreException;
+import java.security.NoSuchAlgorithmException;
+import java.security.PrivateKey;
+import java.security.cert.CertificateException;
+import java.security.cert.X509Certificate;
+import java.security.interfaces.RSAPrivateKey;
+import java.security.spec.InvalidKeySpecException;
 import java.util.Collections;
 import java.util.List;
 
+import javax.net.ssl.KeyManagerFactory;
+import javax.net.ssl.SSLContext;
+import javax.net.ssl.TrustManager;
+import javax.net.ssl.X509TrustManager;
 import javax.ws.rs.client.Client;
 import javax.ws.rs.client.ClientBuilder;
 import javax.ws.rs.client.Entity;
@@ -31,6 +43,7 @@ import javax.ws.rs.core.Feature;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 
+import org.glassfish.jersey.SslConfigurator;
 import org.glassfish.jersey.client.oauth2.OAuth2ClientSupport;
 
 import com.fasterxml.jackson.core.JsonParseException;
@@ -40,6 +53,7 @@ import com.fasterxml.jackson.databind.JsonMappingException;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 
+import de.madana.common.datastructures.MDN_Application;
 import de.madana.common.datastructures.MDN_ErrorMessage;
 import de.madana.common.datastructures.MDN_MailAddress;
 import de.madana.common.datastructures.MDN_OAuthToken;
@@ -55,6 +69,8 @@ import de.madana.common.datastructures.MDN_UserCredentials;
 import de.madana.common.datastructures.MDN_UserProfile;
 import de.madana.common.datastructures.MDN_UserProfileImage;
 import de.madana.common.datastructures.MDN_UserSetting;
+import de.madana.common.security.certficate.CertificateHandler;
+import de.madana.common.security.crypto.AsymmetricCryptography;
 
 // TODO: Auto-generated Javadoc
 /**
@@ -84,6 +100,7 @@ public class MDN_RestClient
 
 	/**
 	 * Instantiates a new MD N rest client.
+	 * @throws Exception 
 	 */
 	public MDN_RestClient()
 	{
@@ -98,7 +115,63 @@ public class MDN_RestClient
 				REST_URI= System.getenv("RESTURI");
 		}
 		client = ClientBuilder.newClient();
+//		 ClientBuilder clientBuilder = ClientBuilder.newBuilder();
+//		 try {
+//			client =  clientBuilder.sslContext(initSSLContext()).build();
+//		} catch (Exception e) {
+//			// TODO Auto-generated catch block
+//			e.printStackTrace();
+//		}
+		
 	}
+	private SSLContext initSSLContext() throws Exception
+	{
+
+		// Assume the following variables are initialized already
+		String password = String.valueOf(new java.security.SecureRandom().nextInt());
+		PrivateKey clientKey = AsymmetricCryptography.loadPrivateKeyFromFile("C:\\\\TEMP\\\\app.priv");
+		X509Certificate clientCert =CertificateHandler.getCertificateFromFile("C:\\TEMP\\app.crt");
+		X509Certificate globalCert =CertificateHandler.getCertificateFromFile("C:\\TEMP\\ca.crt");
+		X509Certificate rootCert =CertificateHandler.getCertificateFromFile("C:\\TEMP\\root.cer") ;
+		X509Certificate[] certChain = {clientCert, globalCert};
+
+		// setup key store
+		KeyStore clientKeyStore = KeyStore.getInstance("JKS");
+		clientKeyStore.load(null, password.toCharArray());
+		clientKeyStore.setKeyEntry("service-tls", clientKey,password.toCharArray(), certChain);
+
+		// setup trust store
+		KeyStore clientTrustStore = KeyStore.getInstance("JKS");
+		clientTrustStore.load(null, password.toCharArray());
+		clientTrustStore.setCertificateEntry("root-ca", rootCert);
+
+		// setup Jersey client
+		SslConfigurator sslConfig = SslConfigurator.newInstance()
+		        .keyStore(clientKeyStore)
+		        .trustStore(clientTrustStore)
+		        .securityProtocol("TLSv1.2");
+
+		SSLContext sslContext = sslConfig.createSSLContext();
+//		// Create a trust manager that does not validate certificate chains
+//		TrustManager[] trustAllCerts = new TrustManager[] { 
+//		    new X509TrustManager() {     
+//		        public java.security.cert.X509Certificate[] getAcceptedIssuers() { 
+//		            return new X509Certificate[0];
+//		        } 
+//		        public void checkClientTrusted( 
+//		            java.security.cert.X509Certificate[] certs, String authType) {
+//		            } 
+//		        public void checkServerTrusted( 
+//		            java.security.cert.X509Certificate[] certs, String authType) {
+//		        }
+//		    } 
+//		};
+//		KeyManagerFactory keyManagerFactory = KeyManagerFactory.getInstance("X509");
+//		keyManagerFactory.init(clientKeyStore, password.toCharArray());
+//		sslContext.init(keyManagerFactory.getKeyManagers(), trustAllCerts, new java.security.SecureRandom()); 
+		return sslContext;
+	}
+	
 
 	/**
 	 * Gets the users.
@@ -110,6 +183,33 @@ public class MDN_RestClient
 		List<MDN_UserProfile> oList = client.target(MDN_RestClient.REST_URI).path("users").request(MediaType.APPLICATION_JSON).get(List.class);
 
 		return oList;
+	}
+	/**
+	 * Logon.
+	 *
+	 * @param strUserName the str user name
+	 * @param strPassword the str password
+	 * @return true, if successful
+	 * @throws Exception the exception
+	 */
+	public boolean authApplication(X509Certificate oCertificate) throws Exception
+	{
+		MDN_Application oApp = new MDN_Application();
+		oApp.setPem(CertificateHandler.convertCertificateToPEM(oCertificate));
+		registerToken(oApp);
+		return true;
+	}
+
+	private String registerToken(MDN_Application oApp) throws Exception 
+	{
+		Response oResponse = client.target(MDN_RestClient.REST_URI).path("authentication").path("application").request(MediaType.APPLICATION_JSON).post(Entity.entity(oApp, MediaType.APPLICATION_JSON)); 
+		checkForError(oResponse, Response.Status.OK.getStatusCode() );
+		MDN_Token oToken = oResponse.readEntity(MDN_Token.class);
+		Feature feature = OAuth2ClientSupport.feature(oToken.getToken());
+		client.register(feature);
+
+		return oToken.getToken();
+		
 	}
 
 	/**
@@ -724,6 +824,20 @@ public class MDN_RestClient
 	{
 		return response.readEntity(MDN_ErrorMessage.class);
 
+	}
+	private String loadProperty(String property)
+	{
+		if(System.getProperty(property)!=null)
+		{
+			if(System.getProperty(property).length()>0)
+				return System.getProperty(property);
+		}
+		if(System.getenv(property)!=null)
+		{
+			if(System.getenv(property).length()>0)
+				return  System.getenv("RESTURI");
+		}
+		return "";
 	}
 
 }
