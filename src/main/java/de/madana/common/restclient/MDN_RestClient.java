@@ -690,6 +690,17 @@ public class MDN_RestClient
 		return true;	
 	}
 
+
+	public boolean requestEmailVerification(String currentUser) 
+	{
+		Response oResponse=client.target(MDN_RestClient.REST_URI).path("/authentication").path("verifymail").request(MediaType.APPLICATION_JSON).get();
+		if( Response.Status.OK.getStatusCode()!=oResponse.getStatus())
+			return false;
+
+		return true;	
+		
+	}
+
 	/**
 	 * Gets the fractal auth token.
 	 *
