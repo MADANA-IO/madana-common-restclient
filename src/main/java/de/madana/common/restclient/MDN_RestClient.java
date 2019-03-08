@@ -45,10 +45,7 @@ import com.fasterxml.jackson.databind.JsonMappingException;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 
-import de.madana.common.datastructures.MDN_AnalysisRequest;
-import de.madana.common.datastructures.MDN_AnalysisRequestAction;
 import de.madana.common.datastructures.MDN_Certificate;
-import de.madana.common.datastructures.MDN_Data;
 import de.madana.common.datastructures.MDN_ErrorMessage;
 import de.madana.common.datastructures.MDN_MailAddress;
 import de.madana.common.datastructures.MDN_OAuthToken;
@@ -77,10 +74,10 @@ public class MDN_RestClient
 {
 
 	/** The rest uri. */
-	static String REST_URI  = "";
+	protected static String REST_URI  = "";
 
 	/** The client. */
-	Client client;
+	protected Client client;
 
 	/**
 	 * Instantiates a new MD N rest client.
@@ -792,72 +789,6 @@ public class MDN_RestClient
 
 		return true;		
 	}
-	public String createAnalysisRequests()
-	{
-		Response oResponse = client.target(MDN_RestClient.REST_URI).path("request").request(MediaType.APPLICATION_JSON).post(Entity.entity(null, MediaType.APPLICATION_JSON));
-		String strResponse =  oResponse.readEntity(String.class);
-		return strResponse;
-	}
-	public MDN_AnalysisRequest getRequest(String uuid)
-	{
-		try
-		{
-			MDN_AnalysisRequest oRequest= client.target(MDN_RestClient.REST_URI).path("request").path(uuid).request(MediaType.APPLICATION_JSON).get(MDN_AnalysisRequest.class);
-			return oRequest;
-		}
-		catch(Exception e)
-		{
-			return null;
-		}
-
-	}
-	public List<String> getAllAnalysisRequests()
-	{
-		List<String> oUUIDs = client.target(MDN_RestClient.REST_URI).path("request").queryParam("new", "false").request(MediaType.APPLICATION_JSON).get(List.class);
-		return oUUIDs;
-	}
-	public List<String> getNewAnalysisRequests()
-	{
-		List<String> oUUIDs = client.target(MDN_RestClient.REST_URI).path("request").queryParam("new", "true").request(MediaType.APPLICATION_JSON).get(List.class);
-		return oUUIDs;
-	}
-	public List<MDN_AnalysisRequestAction> getAllAnalysisRequestsHistory() {
-		List<MDN_AnalysisRequestAction> actions = null;
-		ObjectMapper mapper = new ObjectMapper();
-		mapper.configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, false);
-	
-		//Jackson's use of generics here are completely unsafe, but that's another issue
-		try {
-			JsonNode oJSON =client.target(MDN_RestClient.REST_URI).path("request").queryParam("new", "false").queryParam("history", "true").request(MediaType.APPLICATION_JSON).get(JsonNode.class);
-			actions = mapper.readValue(mapper.treeAsTokens(oJSON),   new TypeReference<List<MDN_AnalysisRequestAction>>(){});
-		
-
-		} catch (JsonParseException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		} catch (JsonMappingException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		} catch (IOException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		}
-		return actions;
-		
-	}
-	public void addDataToAnalysisRequest(String ruid, String data) throws Exception
-	{
-		MDN_Data oData = new MDN_Data();
-		oData.setData(data);
-		Response oResponse = client.target(MDN_RestClient.REST_URI).path("request").path(ruid).request(MediaType.APPLICATION_JSON).put(Entity.entity(oData, MediaType.APPLICATION_JSON));
-		checkForError(oResponse, Response.Status.OK.getStatusCode());
-	}
-	public void agreeOnAnalysisRequest(String ruid) throws Exception
-	{
-
-		Response oResponse = client.target(MDN_RestClient.REST_URI).path("request").path(ruid).request(MediaType.APPLICATION_JSON).post(Entity.entity(null, MediaType.APPLICATION_JSON));
-		checkForError(oResponse, Response.Status.OK.getStatusCode());
-	}
 
 
 
@@ -869,7 +800,7 @@ public class MDN_RestClient
 	 * @param status the status
 	 * @throws Exception the exception
 	 */
-	private void checkForError( Response response, int status )throws Exception
+	protected void checkForError( Response response, int status )throws Exception
 	{
 		if( status!=response.getStatus())
 		{
