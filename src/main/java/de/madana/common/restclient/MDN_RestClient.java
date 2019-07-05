@@ -21,13 +21,10 @@
 package de.madana.common.restclient;
 
 import java.io.IOException;
-import java.security.KeyStore;
-import java.security.PrivateKey;
 import java.security.cert.X509Certificate;
 import java.util.Collections;
 import java.util.List;
 
-import javax.net.ssl.SSLContext;
 import javax.ws.rs.client.Client;
 import javax.ws.rs.client.ClientBuilder;
 import javax.ws.rs.client.Entity;
@@ -35,7 +32,6 @@ import javax.ws.rs.core.Feature;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 
-import org.glassfish.jersey.SslConfigurator;
 import org.glassfish.jersey.client.oauth2.OAuth2ClientSupport;
 
 import com.fasterxml.jackson.core.JsonParseException;
@@ -62,7 +58,6 @@ import de.madana.common.datastructures.MDN_UserProfile;
 import de.madana.common.datastructures.MDN_UserProfileImage;
 import de.madana.common.datastructures.MDN_UserSetting;
 import de.madana.common.security.certficate.CertificateHandler;
-import de.madana.common.security.crypto.AsymmetricCryptography;
 
 // TODO: Auto-generated Javadoc
 /**
@@ -116,66 +111,7 @@ public class MDN_RestClient
 		//		}
 
 	}
-	private SSLContext initSSLContext() throws Exception
-	{
 
-		// Assume the following variables are initialized already
-		String password = String.valueOf(new java.security.SecureRandom().nextInt());
-		PrivateKey clientKey = AsymmetricCryptography.loadPrivateKeyFromFile("C:\\\\TEMP\\\\app.priv");
-		X509Certificate clientCert =CertificateHandler.getCertificateFromFile("C:\\TEMP\\app.crt");
-		X509Certificate globalCert =CertificateHandler.getCertificateFromFile("C:\\TEMP\\ca.crt");
-		X509Certificate rootCert =CertificateHandler.getCertificateFromFile("C:\\TEMP\\root.cer") ;
-		X509Certificate[] certChain = {clientCert, globalCert};
-
-		// setup key store
-		KeyStore clientKeyStore = KeyStore.getInstance("JKS");
-		clientKeyStore.load(null, password.toCharArray());
-		clientKeyStore.setKeyEntry("service-tls", clientKey,password.toCharArray(), certChain);
-
-		// setup trust store
-		KeyStore clientTrustStore = KeyStore.getInstance("JKS");
-		clientTrustStore.load(null, password.toCharArray());
-		clientTrustStore.setCertificateEntry("root-ca", rootCert);
-
-		// setup Jersey client
-		SslConfigurator sslConfig = SslConfigurator.newInstance()
-				.keyStore(clientKeyStore)
-				.trustStore(clientTrustStore)
-				.securityProtocol("TLSv1.2");
-
-		SSLContext sslContext = sslConfig.createSSLContext();
-		//		// Create a trust manager that does not validate certificate chains
-		//		TrustManager[] trustAllCerts = new TrustManager[] { 
-		//		    new X509TrustManager() {     
-		//		        public java.security.cert.X509Certificate[] getAcceptedIssuers() { 
-		//		            return new X509Certificate[0];
-		//		        } 
-		//		        public void checkClientTrusted( 
-		//		            java.security.cert.X509Certificate[] certs, String authType) {
-		//		            } 
-		//		        public void checkServerTrusted( 
-		//		            java.security.cert.X509Certificate[] certs, String authType) {
-		//		        }
-		//		    } 
-		//		};
-		//		KeyManagerFactory keyManagerFactory = KeyManagerFactory.getInstance("X509");
-		//		keyManagerFactory.init(clientKeyStore, password.toCharArray());
-		//		sslContext.init(keyManagerFactory.getKeyManagers(), trustAllCerts, new java.security.SecureRandom()); 
-		return sslContext;
-	}
-
-
-	/**
-	 * Gets the users.
-	 *
-	 * @return the users
-	 */
-	public List<MDN_UserProfile> getUsers()
-	{
-		List<MDN_UserProfile> oList = client.target(MDN_RestClient.REST_URI).path("users").request(MediaType.APPLICATION_JSON).get(List.class);
-
-		return oList;
-	}
 	/**
 	 * Logon.
 	 *
@@ -223,7 +159,7 @@ public class MDN_RestClient
 	public  boolean validateSession()
 	{
 
-		Response oResponse =client.target(MDN_RestClient.REST_URI).path("authentication").path("validate").request().get();
+		Response oResponse =client.target(MDN_RestClient.REST_URI).path("authentication").request().get();
 		if(Response.Status.OK.getStatusCode()== oResponse.getStatus())
 			return true;
 		return false;
@@ -239,7 +175,7 @@ public class MDN_RestClient
 	public boolean requestNewPassword(MDN_MailAddress oMail) throws Exception
 	{
 
-		Response oResponse = client.target(MDN_RestClient.REST_URI).path("password").request(MediaType.APPLICATION_JSON).post(Entity.entity(oMail, MediaType.APPLICATION_JSON));
+		Response oResponse = client.target(MDN_RestClient.REST_URI).path("account").path("password").request(MediaType.APPLICATION_JSON).post(Entity.entity(oMail, MediaType.APPLICATION_JSON));
 		if( Response.Status.ACCEPTED.getStatusCode()!=oResponse.getStatus())
 			throw new Exception("Mail Address Not found");
 
@@ -255,7 +191,7 @@ public class MDN_RestClient
 	 */
 	public boolean setNewPassword(MDN_PasswordReset oPasswordReset)throws Exception
 	{
-		Response oResponse = client.target(MDN_RestClient.REST_URI).path("password").request(MediaType.APPLICATION_JSON).put(Entity.entity(oPasswordReset, MediaType.APPLICATION_JSON));
+		Response oResponse = client.target(MDN_RestClient.REST_URI).path("account").path("password").request(MediaType.APPLICATION_JSON).put(Entity.entity(oPasswordReset, MediaType.APPLICATION_JSON));
 		checkForError( oResponse, Response.Status.ACCEPTED.getStatusCode());
 
 		return true;
@@ -419,7 +355,7 @@ public class MDN_RestClient
 	 */
 	public String getFacebookAuthURL() 
 	{
-		String strUrl=client.target(MDN_RestClient.REST_URI).path("social").path("auth").path("facebook").request(MediaType.APPLICATION_JSON).get(String.class);
+		String strUrl=client.target(MDN_RestClient.REST_URI).path("authentication").path("facebook").request(MediaType.APPLICATION_JSON).get(String.class);
 		return strUrl;
 	}
 
@@ -430,7 +366,7 @@ public class MDN_RestClient
 	 */
 	public String getTwitterAuthURL() 
 	{
-		String strUrl=client.target(MDN_RestClient.REST_URI).path("social").path("auth").path("twitter").request(MediaType.APPLICATION_JSON).get(String.class);
+		String strUrl=client.target(MDN_RestClient.REST_URI).path("authentication").path("twitter").request(MediaType.APPLICATION_JSON).get(String.class);
 		return strUrl;
 	}
 
@@ -498,7 +434,7 @@ public class MDN_RestClient
 	 */
 	public boolean setFacebookUID(String strCode) 
 	{
-		Response oResponse = client.target(MDN_RestClient.REST_URI).path("social").path("auth").path("facebook").request(MediaType.APPLICATION_JSON).post(Entity.entity(strCode, MediaType.APPLICATION_JSON));
+		Response oResponse = client.target(MDN_RestClient.REST_URI).path("authentication").path("facebook").request(MediaType.APPLICATION_JSON).post(Entity.entity(strCode, MediaType.APPLICATION_JSON));
 		if( Response.Status.ACCEPTED.getStatusCode()!=oResponse.getStatus())
 			return false;
 
@@ -539,7 +475,7 @@ public class MDN_RestClient
 	 */
 	public boolean setFractalUID(String code) 
 	{
-		Response oResponse = client.target(MDN_RestClient.REST_URI).path("social").path("auth").path("fractal").request(MediaType.APPLICATION_JSON).post(Entity.entity(code, MediaType.APPLICATION_JSON));
+		Response oResponse = client.target(MDN_RestClient.REST_URI).path("authentication").path("fractal").request(MediaType.APPLICATION_JSON).post(Entity.entity(code, MediaType.APPLICATION_JSON));
 		if( Response.Status.ACCEPTED.getStatusCode()!=oResponse.getStatus())
 			return false;
 
@@ -560,7 +496,7 @@ public class MDN_RestClient
 		MDN_OAuthToken oToken = new MDN_OAuthToken();
 		oToken.setToken(token);
 		oToken.setVerifier(verifier);
-		Response oResponse = client.target(MDN_RestClient.REST_URI).path("social").path("auth").path("twitter").request(MediaType.APPLICATION_JSON).post(Entity.entity(oToken, MediaType.APPLICATION_JSON));
+		Response oResponse = client.target(MDN_RestClient.REST_URI).path("authentication").path("twitter").request(MediaType.APPLICATION_JSON).post(Entity.entity(oToken, MediaType.APPLICATION_JSON));
 		checkForError( oResponse, Response.Status.ACCEPTED.getStatusCode());
 
 		return true;
@@ -617,11 +553,32 @@ public class MDN_RestClient
 	 * @return the profile
 	 * @throws Exception the exception
 	 */
+	public MDN_SimpleUserProfile getSimpleUserProfile(String strUserName) throws Exception 
+	{
+		try
+		{
+			MDN_SimpleUserProfile oProfile = client.target(MDN_RestClient.REST_URI).path("social").path("profiles").path(strUserName).queryParam("simple", "true").request(MediaType.APPLICATION_JSON).get(MDN_UserProfile.class);
+			return oProfile;
+		}
+		catch(Exception e)
+		{
+			throw new Exception("Error Requesting profile " +strUserName);
+		}
+
+
+	}
+	/**
+	 * Gets the profile.
+	 *
+	 * @param strUserName the str user name
+	 * @return the profile
+	 * @throws Exception the exception
+	 */
 	public MDN_UserProfile getProfile(String strUserName) throws Exception 
 	{
 		try
 		{
-			MDN_UserProfile oProfile = client.target(MDN_RestClient.REST_URI).path("users").path("profiles").path(strUserName).request(MediaType.APPLICATION_JSON).get(MDN_UserProfile.class);
+			MDN_UserProfile oProfile = client.target(MDN_RestClient.REST_URI).path("social").path("profiles").path(strUserName).request(MediaType.APPLICATION_JSON).get(MDN_UserProfile.class);
 			return oProfile;
 		}
 		catch(Exception e)
@@ -641,7 +598,7 @@ public class MDN_RestClient
 	{
 		try
 		{
-			MDN_UserProfile oProfile = client.target(MDN_RestClient.REST_URI).path("users").path("profiles").path("me").request(MediaType.APPLICATION_JSON).get(MDN_UserProfile.class);
+			MDN_UserProfile oProfile = client.target(MDN_RestClient.REST_URI).path("social").path("profiles").path("me").request(MediaType.APPLICATION_JSON).get(MDN_UserProfile.class);
 			return oProfile;
 		}
 		catch(Exception e)
@@ -659,7 +616,7 @@ public class MDN_RestClient
 	 */
 	public MDN_SystemHealthObject getSystemHealth()
 	{
-		MDN_SystemHealthObject Health = client.target(MDN_RestClient.REST_URI).path("health").request(MediaType.APPLICATION_JSON).get(MDN_SystemHealthObject.class);
+		MDN_SystemHealthObject Health = client.target(MDN_RestClient.REST_URI).path("system").path("health").request(MediaType.APPLICATION_JSON).get(MDN_SystemHealthObject.class);
 
 		return Health;
 	}
@@ -671,7 +628,7 @@ public class MDN_RestClient
 	 */
 	public String getFractalAuthURL() 	
 	{
-		String strUrl=client.target(MDN_RestClient.REST_URI).path("social").path("fractal").path("auth").request(MediaType.APPLICATION_JSON).get(String.class);
+		String strUrl=client.target(MDN_RestClient.REST_URI).path("authentication").path("fractal").request(MediaType.APPLICATION_JSON).get(String.class);
 		return strUrl;
 	}
 
@@ -683,7 +640,7 @@ public class MDN_RestClient
 	 */
 	public boolean validateActivationToken(String token) 	
 	{
-		Response oResponse=client.target(MDN_RestClient.REST_URI).path("users").path("activation").path(token).request(MediaType.APPLICATION_JSON).get();
+		Response oResponse=client.target(MDN_RestClient.REST_URI).path("account").path("activation").path(token).request(MediaType.APPLICATION_JSON).get();
 		if( Response.Status.ACCEPTED.getStatusCode()!=oResponse.getStatus())
 			return false;
 
@@ -693,7 +650,7 @@ public class MDN_RestClient
 
 	public boolean requestEmailVerification(String currentUser) 
 	{
-		Response oResponse=client.target(MDN_RestClient.REST_URI).path("/authentication").path("verifymail").request(MediaType.APPLICATION_JSON).get();
+		Response oResponse=client.target(MDN_RestClient.REST_URI).path("account").path("verifymail").request(MediaType.APPLICATION_JSON).get();
 		if( Response.Status.OK.getStatusCode()!=oResponse.getStatus())
 			return false;
 
