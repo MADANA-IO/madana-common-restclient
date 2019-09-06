@@ -747,8 +747,36 @@ public class MDN_RestClient
 		return true;		
 	}
 
+	/**
+	 * Requests verification nonce from server
+	 * @param wallet - the wallet address
+	 * @return nonce as string
+	 */
+	public String getEthereumVerificationNonce(String wallet)
+	{
 
+		MDN_Token wrapper  = client.target(MDN_RestClient.REST_URI).path("authentication").path("ethereum").path(wallet).request(MediaType.APPLICATION_JSON).get(MDN_Token.class);
+		return wrapper.getToken();
+	}
+	
+	/**
+	 * Sends signed nonce to server in request for verification
+	 * @param wallet - the wallet address
+	 * @param nonce - nonce previously received from calling /GET
+	 * @param signature - created signature
+	 * @return true if signature could be verified and wallet has been linked
+	 */
+	public boolean verifyEthereumWallet(String wallet, String nonce, String signature)
+	{
+		MDN_OAuthToken wrapper = new MDN_OAuthToken();
+		wrapper.setToken(nonce);
+		wrapper.setVerifier(signature);
+		Response oResponse = client.target(MDN_RestClient.REST_URI).path("authentication").path("ethereum").path(wallet).request(MediaType.APPLICATION_JSON).post(Entity.entity(wrapper, MediaType.APPLICATION_JSON));
+		if( Response.Status.ACCEPTED.getStatusCode()!=oResponse.getStatus())
+			return false;
 
+		return true;
+	}
 
 	/**
 	 * Check for error.
