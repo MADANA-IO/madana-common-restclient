@@ -3,8 +3,8 @@
 	<modelVersion>4.0.0</modelVersion>
 
 	<groupId>de.madana.common</groupId>
-	<artifactId>madana-restclient</artifactId>
-	<name>madana-restclient</name>
+	<artifactId>restclient</artifactId>
+	<name>madana-common-restclient</name>
 	<packaging>jar</packaging>
 
 	
@@ -45,12 +45,12 @@
 		</dependency>
 		<dependency>
 			<groupId>de.madana.common</groupId>
-			<artifactId>madana-datastructures</artifactId>
-			<version>0.0.1-SNAPSHOT</version>
+			<artifactId>datastructures</artifactId>
+			<version>LATEST</version>
 		</dependency>
 		<dependency>
 			<groupId>de.madana.common</groupId>
-			<artifactId>madana-security</artifactId>
+			<artifactId>security</artifactId>
 			<version>LATEST</version>
 		</dependency>
 	</dependencies>
@@ -78,4 +78,11 @@
 
 	</build>
 		<version>${bamboo.mcrestclient.version}</version>
+			<distributionManagement>
+		<repository>
+			<id>github</id>
+			<name>GitHub MADANA-IO Apache Maven Packages</name>
+			<url>https://maven.pkg.github.com/MADANA-IO/madana-common-restclient</url>
+		</repository>
+	</distributionManagement>
 </project>
