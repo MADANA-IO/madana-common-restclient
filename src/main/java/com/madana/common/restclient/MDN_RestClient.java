@@ -18,7 +18,7 @@
  * @author:Jean-Fabian Wenisch
  * @contact:dev@madana.io
  ******************************************************************************/
-package de.madana.common.restclient;
+package com.madana.common.restclient;
 
 import java.io.IOException;
 import java.security.cert.X509Certificate;
@@ -40,24 +40,23 @@ import com.fasterxml.jackson.databind.DeserializationFeature;
 import com.fasterxml.jackson.databind.JsonMappingException;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
-
-import de.madana.common.datastructures.MDN_Certificate;
-import de.madana.common.datastructures.MDN_ErrorMessage;
-import de.madana.common.datastructures.MDN_MailAddress;
-import de.madana.common.datastructures.MDN_OAuthToken;
-import de.madana.common.datastructures.MDN_PasswordReset;
-import de.madana.common.datastructures.MDN_PersonalSocialPost;
-import de.madana.common.datastructures.MDN_SimpleUserProfile;
-import de.madana.common.datastructures.MDN_SocialPlatform;
-import de.madana.common.datastructures.MDN_SocialPost;
-import de.madana.common.datastructures.MDN_SystemHealthObject;
-import de.madana.common.datastructures.MDN_Token;
-import de.madana.common.datastructures.MDN_User;
-import de.madana.common.datastructures.MDN_UserCredentials;
-import de.madana.common.datastructures.MDN_UserProfile;
-import de.madana.common.datastructures.MDN_UserProfileImage;
-import de.madana.common.datastructures.MDN_UserSetting;
-import de.madana.common.security.certficate.CertificateHandler;
+import com.madana.common.datastructures.MDN_Certificate;
+import com.madana.common.datastructures.MDN_ErrorMessage;
+import com.madana.common.datastructures.MDN_MailAddress;
+import com.madana.common.datastructures.MDN_OAuthToken;
+import com.madana.common.datastructures.MDN_PasswordReset;
+import com.madana.common.datastructures.MDN_PersonalSocialPost;
+import com.madana.common.datastructures.MDN_SimpleUserProfile;
+import com.madana.common.datastructures.MDN_SocialPlatform;
+import com.madana.common.datastructures.MDN_SocialPost;
+import com.madana.common.datastructures.MDN_SystemHealthObject;
+import com.madana.common.datastructures.MDN_Token;
+import com.madana.common.datastructures.MDN_User;
+import com.madana.common.datastructures.MDN_UserCredentials;
+import com.madana.common.datastructures.MDN_UserProfile;
+import com.madana.common.datastructures.MDN_UserProfileImage;
+import com.madana.common.datastructures.MDN_UserSetting;
+import com.madana.common.security.certficate.CertificateHandler;
 
 // TODO: Auto-generated Javadoc
 /**
