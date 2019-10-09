@@ -15,7 +15,7 @@
                 <repository>
                   <id>github</id>
                   <name>GitHub MADANA-IO Apache Maven Packages</name>
-                  <url>https://maven.pkg.github.com/madana-io/madana-common-restclient</url>
+                  <url>https://maven.pkg.github.com/madana-io/madana-common</url>
 		</repository>
         </repositories>
 
