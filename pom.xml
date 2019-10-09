@@ -11,6 +11,13 @@
 
 
 	<url>http://maven.apache.org</url>
+	<repositories>
+                <repository>
+                  <id>github-restclient</id>
+                  <name>GitHub MADANA-IO Apache Maven Packages</name>
+                  <url>https://maven.pkg.github.com/madana-io/madana-common-restclient</url>
+		</repository>
+        </repositories>
 
 	<properties>
 		<java.version>1.8</java.version>
@@ -47,12 +54,12 @@
 		<dependency>
 			<groupId>com.madana.common</groupId>
 			<artifactId>madana-common-security</artifactId>
-			<version>LATEST</version>
+			<version>0.1.27</version>
 		</dependency>
 		<dependency>
 			<groupId>com.madana.common</groupId>
 			<artifactId>madana-common-datastructures</artifactId>
-			<version>LATEST</version>
+			<version>0.1.23</version>
 		</dependency>
 
 	</dependencies>
