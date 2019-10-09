@@ -5,8 +5,7 @@
 	<modelVersion>4.0.0</modelVersion>
 
 	<groupId>com.madana.common</groupId>
-	<artifactId>restclient</artifactId>
-	<name>madana-common-restclient</name>
+	<artifactId>madana-common-restclient</artifactId>
 	<packaging>jar</packaging>
 
 
