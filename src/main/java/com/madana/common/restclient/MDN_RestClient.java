@@ -203,7 +203,7 @@ public class MDN_RestClient
 	 * @return the string
 	 * @throws Exception the exception
 	 */
-	private String registerToken(MDN_UserCredentials oCredentials ) throws Exception
+	protected String registerToken(MDN_UserCredentials oCredentials ) throws Exception
 	{
 		Response oResponse = client.target(MDN_RestClient.REST_URI).path("authentication").request(MediaType.APPLICATION_JSON).post(Entity.entity(oCredentials, MediaType.APPLICATION_JSON)); 
 		checkForError(oResponse, Response.Status.OK.getStatusCode() );
