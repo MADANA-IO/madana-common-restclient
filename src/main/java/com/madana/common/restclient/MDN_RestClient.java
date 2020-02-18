@@ -64,11 +64,10 @@ import com.madana.common.security.certficate.CertificateHandler;
  *
  * @author J.-Fabian Wenisch
  */
-public class MDN_RestClient 
-{
+public class MDN_RestClient {
 
 	/** The rest uri. */
-	protected static String REST_URI  = "";
+	protected static String REST_URI = "";
 
 	/** The client. */
 	protected Client client;
@@ -78,36 +77,33 @@ public class MDN_RestClient
 	 *
 	 * @param strUrl the str url
 	 */
-	public MDN_RestClient(String strUrl)
-	{
-		REST_URI= strUrl;
+	public MDN_RestClient(String strUrl) {
+		REST_URI = strUrl;
 		client = ClientBuilder.newClient();
 	}
 
 	/**
 	 * Instantiates a new MD N rest client.
-	 * @throws Exception 
+	 * 
+	 * @throws Exception
 	 */
-	public MDN_RestClient()
-	{
-		if(System.getProperty("RESTURI")!=null)
-		{
-			if(System.getProperty("RESTURI").length()>0)
-				REST_URI= System.getProperty("RESTURI");
+	public MDN_RestClient() {
+		if (System.getProperty("RESTURI") != null) {
+			if (System.getProperty("RESTURI").length() > 0)
+				REST_URI = System.getProperty("RESTURI");
 		}
-		if(System.getenv("RESTURI")!=null)
-		{
-			if(System.getenv("RESTURI").length()>0)
-				REST_URI= System.getenv("RESTURI");
+		if (System.getenv("RESTURI") != null) {
+			if (System.getenv("RESTURI").length() > 0)
+				REST_URI = System.getenv("RESTURI");
 		}
 		client = ClientBuilder.newClient();
-		//		 ClientBuilder clientBuilder = ClientBuilder.newBuilder();
-		//		 try {
-		//			client =  clientBuilder.sslContext(initSSLContext()).build();
-		//		} catch (Exception e) {
-		//			// TODO Auto-generated catch block
-		//			e.printStackTrace();
-		//		}
+		// ClientBuilder clientBuilder = ClientBuilder.newBuilder();
+		// try {
+		// client = clientBuilder.sslContext(initSSLContext()).build();
+		// } catch (Exception e) {
+		// // TODO Auto-generated catch block
+		// e.printStackTrace();
+		// }
 
 	}
 
@@ -119,18 +115,17 @@ public class MDN_RestClient
 	 * @return true, if successful
 	 * @throws Exception the exception
 	 */
-	public boolean authApplication(X509Certificate oCertificate) throws Exception
-	{
+	public boolean authApplication(X509Certificate oCertificate) throws Exception {
 		MDN_Certificate oApp = new MDN_Certificate();
 		oApp.setPem(CertificateHandler.convertCertificateToPEM(oCertificate));
 		registerToken(oApp);
 		return true;
 	}
 
-	private String registerToken(MDN_Certificate oApp) throws Exception 
-	{
-		Response oResponse = client.target(MDN_RestClient.REST_URI).path("authentication").path("application").request(MediaType.APPLICATION_JSON).post(Entity.entity(oApp, MediaType.APPLICATION_JSON)); 
-		checkForError(oResponse, Response.Status.OK.getStatusCode() );
+	private String registerToken(MDN_Certificate oApp) throws Exception {
+		Response oResponse = client.target(MDN_RestClient.REST_URI).path("authentication").path("application")
+				.request(MediaType.APPLICATION_JSON).post(Entity.entity(oApp, MediaType.APPLICATION_JSON));
+		checkForError(oResponse, Response.Status.OK.getStatusCode());
 		MDN_Token oToken = oResponse.readEntity(MDN_Token.class);
 		Feature feature = OAuth2ClientSupport.feature(oToken.getToken());
 		client.register(feature);
@@ -147,19 +142,18 @@ public class MDN_RestClient
 	 * @return true, if successful
 	 * @throws Exception the exception
 	 */
-	public boolean logon(String strUserName, String strPassword) throws Exception
-	{
+	public boolean logon(String strUserName, String strPassword) throws Exception {
 		MDN_UserCredentials oCredentials = new MDN_UserCredentials();
 		oCredentials.setPassword(strPassword);
 		oCredentials.setUsername(strUserName);
 		registerToken(oCredentials);
 		return true;
 	}
-	public  boolean validateSession()
-	{
 
-		Response oResponse =client.target(MDN_RestClient.REST_URI).path("authentication").request().get();
-		if(Response.Status.OK.getStatusCode()== oResponse.getStatus())
+	public boolean validateSession() {
+
+		Response oResponse = client.target(MDN_RestClient.REST_URI).path("authentication").request().get();
+		if (Response.Status.OK.getStatusCode() == oResponse.getStatus())
 			return true;
 		return false;
 	}
@@ -171,11 +165,11 @@ public class MDN_RestClient
 	 * @return true, if successful
 	 * @throws Exception the exception
 	 */
-	public boolean requestNewPassword(MDN_MailAddress oMail) throws Exception
-	{
+	public boolean requestNewPassword(MDN_MailAddress oMail) throws Exception {
 
-		Response oResponse = client.target(MDN_RestClient.REST_URI).path("account").path("password").request(MediaType.APPLICATION_JSON).post(Entity.entity(oMail, MediaType.APPLICATION_JSON));
-		if( Response.Status.ACCEPTED.getStatusCode()!=oResponse.getStatus())
+		Response oResponse = client.target(MDN_RestClient.REST_URI).path("account").path("password")
+				.request(MediaType.APPLICATION_JSON).post(Entity.entity(oMail, MediaType.APPLICATION_JSON));
+		if (Response.Status.ACCEPTED.getStatusCode() != oResponse.getStatus())
 			throw new Exception("Mail Address Not found");
 
 		return true;
@@ -188,10 +182,10 @@ public class MDN_RestClient
 	 * @return true, if successful
 	 * @throws Exception the exception
 	 */
-	public boolean setNewPassword(MDN_PasswordReset oPasswordReset)throws Exception
-	{
-		Response oResponse = client.target(MDN_RestClient.REST_URI).path("account").path("password").request(MediaType.APPLICATION_JSON).put(Entity.entity(oPasswordReset, MediaType.APPLICATION_JSON));
-		checkForError( oResponse, Response.Status.ACCEPTED.getStatusCode());
+	public boolean setNewPassword(MDN_PasswordReset oPasswordReset) throws Exception {
+		Response oResponse = client.target(MDN_RestClient.REST_URI).path("account").path("password")
+				.request(MediaType.APPLICATION_JSON).put(Entity.entity(oPasswordReset, MediaType.APPLICATION_JSON));
+		checkForError(oResponse, Response.Status.ACCEPTED.getStatusCode());
 
 		return true;
 	}
@@ -203,10 +197,10 @@ public class MDN_RestClient
 	 * @return the string
 	 * @throws Exception the exception
 	 */
-	protected String registerToken(MDN_UserCredentials oCredentials ) throws Exception
-	{
-		Response oResponse = client.target(MDN_RestClient.REST_URI).path("authentication").request(MediaType.APPLICATION_JSON).post(Entity.entity(oCredentials, MediaType.APPLICATION_JSON)); 
-		checkForError(oResponse, Response.Status.OK.getStatusCode() );
+	protected String registerToken(MDN_UserCredentials oCredentials) throws Exception {
+		Response oResponse = client.target(MDN_RestClient.REST_URI).path("authentication")
+				.request(MediaType.APPLICATION_JSON).post(Entity.entity(oCredentials, MediaType.APPLICATION_JSON));
+		checkForError(oResponse, Response.Status.OK.getStatusCode());
 		MDN_Token oToken = oResponse.readEntity(MDN_Token.class);
 		Feature feature = OAuth2ClientSupport.feature(oToken.getToken());
 		client = ClientBuilder.newClient();
@@ -221,9 +215,9 @@ public class MDN_RestClient
 	 * @param strUserName the str user name
 	 * @return the user
 	 */
-	public  MDN_User getUser(String strUserName)
-	{
-		return client.target(MDN_RestClient.REST_URI).path("users").path(strUserName).request(MediaType.APPLICATION_JSON).get(MDN_User.class);
+	public MDN_User getUser(String strUserName) {
+		return client.target(MDN_RestClient.REST_URI).path("users").path(strUserName)
+				.request(MediaType.APPLICATION_JSON).get(MDN_User.class);
 	}
 
 	/**
@@ -231,13 +225,13 @@ public class MDN_RestClient
 	 *
 	 * @param strUserName the str user name
 	 * @param strPassword the str password
-	 * @param strMail the str mail
-	 * @param strToken the str token
+	 * @param strMail     the str mail
+	 * @param strToken    the str token
 	 * @return true, if successful
 	 * @throws Exception the exception
 	 */
-	public boolean createUser(String strUserName, String strPassword, String strMail, String strToken) throws Exception
-	{
+	public boolean createUser(String strUserName, String strPassword, String strMail, String strToken)
+			throws Exception {
 		MDN_User oUser = new MDN_User();
 		oUser.setMail(strMail);
 		MDN_UserCredentials oCredentials = new MDN_UserCredentials();
@@ -251,23 +245,21 @@ public class MDN_RestClient
 	/**
 	 * Creates the user.
 	 *
-	 * @param oUser the o user
+	 * @param oUser    the o user
 	 * @param strToken the str token
 	 * @return the MD N user
 	 * @throws Exception the exception
 	 */
-	private  MDN_User createUser(MDN_User oUser, String strToken) throws Exception
-	{
+	private MDN_User createUser(MDN_User oUser, String strToken) throws Exception {
 		Response response;
-		if(strToken!=null)
-		{
-			response =client.target(MDN_RestClient.REST_URI).path("users").queryParam("referrer", strToken).request(MediaType.APPLICATION_JSON).post(Entity.entity(oUser, MediaType.APPLICATION_JSON));
+		if (strToken != null) {
+			response = client.target(MDN_RestClient.REST_URI).path("users").queryParam("referrer", strToken)
+					.request(MediaType.APPLICATION_JSON).post(Entity.entity(oUser, MediaType.APPLICATION_JSON));
+		} else {
+			response = client.target(MDN_RestClient.REST_URI).path("users").request(MediaType.APPLICATION_JSON)
+					.post(Entity.entity(oUser, MediaType.APPLICATION_JSON));
 		}
-		else
-		{
-			response =client.target(MDN_RestClient.REST_URI).path("users").request(MediaType.APPLICATION_JSON).post(Entity.entity(oUser, MediaType.APPLICATION_JSON));
-		}
-		checkForError(response, Response.Status.OK.getStatusCode() );
+		checkForError(response, Response.Status.OK.getStatusCode());
 		return oUser;
 	}
 
@@ -278,11 +270,11 @@ public class MDN_RestClient
 	 * @return true, if successful
 	 * @throws Exception the exception
 	 */
-	public  boolean deleteUser(String strUserName) throws Exception
-	{
+	public boolean deleteUser(String strUserName) throws Exception {
 
-		Response response =client.target(MDN_RestClient.REST_URI).path("users").path(strUserName).request(MediaType.APPLICATION_JSON).delete();
-		if(Response.Status.OK.getStatusCode()!=response.getStatus())
+		Response response = client.target(MDN_RestClient.REST_URI).path("users").path(strUserName)
+				.request(MediaType.APPLICATION_JSON).delete();
+		if (Response.Status.OK.getStatusCode() != response.getStatus())
 			throw new Exception("Deletion failed");
 		return true;
 	}
@@ -290,15 +282,15 @@ public class MDN_RestClient
 	/**
 	 * Update user.
 	 *
-	 * @param oUser the o user
+	 * @param oUser       the o user
 	 * @param strUserName the str user name
 	 * @return true, if successful
 	 * @throws Exception the exception
 	 */
-	public boolean updateUser(MDN_User oUser, String strUserName) throws Exception 
-	{
-		Response response =client.target(MDN_RestClient.REST_URI).path("users").path(strUserName).request(MediaType.APPLICATION_JSON).put(Entity.entity(oUser, MediaType.APPLICATION_JSON));
-		if(Response.Status.OK.getStatusCode()!=response.getStatus())
+	public boolean updateUser(MDN_User oUser, String strUserName) throws Exception {
+		Response response = client.target(MDN_RestClient.REST_URI).path("users").path(strUserName)
+				.request(MediaType.APPLICATION_JSON).put(Entity.entity(oUser, MediaType.APPLICATION_JSON));
+		if (Response.Status.OK.getStatusCode() != response.getStatus())
 			throw new Exception("Deletion failed");
 		return true;
 	}
@@ -309,13 +301,11 @@ public class MDN_RestClient
 	 * @param strPlatform the str platform
 	 * @return the social feed
 	 */
-	public List<MDN_SocialPost>  getSocialFeed(String strPlatform) 
-	{
-		List<MDN_SocialPost>  oList;
+	public List<MDN_SocialPost> getSocialFeed(String strPlatform) {
+		List<MDN_SocialPost> oList;
 
-		oList=client.target(MDN_RestClient.REST_URI).path("social").path("feed").path(strPlatform).request(MediaType.APPLICATION_JSON).get(List.class);
-
-
+		oList = client.target(MDN_RestClient.REST_URI).path("social").path("feed").path(strPlatform)
+				.request(MediaType.APPLICATION_JSON).get(List.class);
 
 		return oList;
 	}
@@ -326,14 +316,15 @@ public class MDN_RestClient
 	 * @param strUserName the str user name
 	 * @return the personalized twitter feed
 	 */
-	public List<MDN_PersonalSocialPost> getPersonalizedTwitterFeed(String strUserName) 
-	{
+	public List<MDN_PersonalSocialPost> getPersonalizedTwitterFeed(String strUserName) {
 		ObjectMapper mapper = new ObjectMapper();
 		mapper.configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, false);
-		List<MDN_PersonalSocialPost> oList=null;
-		JsonNode oJSON =client.target(MDN_RestClient.REST_URI).path("social").path("feed").path("twitter").request(MediaType.APPLICATION_JSON).get(JsonNode.class);
+		List<MDN_PersonalSocialPost> oList = null;
+		JsonNode oJSON = client.target(MDN_RestClient.REST_URI).path("social").path("feed").path("twitter")
+				.request(MediaType.APPLICATION_JSON).get(JsonNode.class);
 		try {
-			oList = mapper.readValue(mapper.treeAsTokens(oJSON),   new TypeReference<List<MDN_PersonalSocialPost>>(){});
+			oList = mapper.readValue(mapper.treeAsTokens(oJSON), new TypeReference<List<MDN_PersonalSocialPost>>() {
+			});
 		} catch (JsonParseException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
@@ -352,9 +343,9 @@ public class MDN_RestClient
 	 *
 	 * @return the facebook auth URL
 	 */
-	public String getFacebookAuthURL() 
-	{
-		String strUrl=client.target(MDN_RestClient.REST_URI).path("authentication").path("facebook").request(MediaType.APPLICATION_JSON).get(String.class);
+	public String getFacebookAuthURL() {
+		String strUrl = client.target(MDN_RestClient.REST_URI).path("authentication").path("facebook")
+				.request(MediaType.APPLICATION_JSON).get(String.class);
 		return strUrl;
 	}
 
@@ -363,9 +354,9 @@ public class MDN_RestClient
 	 *
 	 * @return the twitter auth URL
 	 */
-	public String getTwitterAuthURL() 
-	{
-		String strUrl=client.target(MDN_RestClient.REST_URI).path("authentication").path("twitter").request(MediaType.APPLICATION_JSON).get(String.class);
+	public String getTwitterAuthURL() {
+		String strUrl = client.target(MDN_RestClient.REST_URI).path("authentication").path("twitter")
+				.request(MediaType.APPLICATION_JSON).get(String.class);
 		return strUrl;
 	}
 
@@ -374,14 +365,16 @@ public class MDN_RestClient
 	 *
 	 * @return the social platforms
 	 */
-	public List<MDN_SocialPlatform> getSocialPlatforms()
-	{
+	public List<MDN_SocialPlatform> getSocialPlatforms() {
 		ObjectMapper mapper = new ObjectMapper();
-		List<MDN_SocialPlatform> oList=null;
-		JsonNode oJSON =client.target(MDN_RestClient.REST_URI).path("social").request(MediaType.APPLICATION_JSON).get(JsonNode.class);
-		//Jackson's use of generics here are completely unsafe, but that's another issue
+		List<MDN_SocialPlatform> oList = null;
+		JsonNode oJSON = client.target(MDN_RestClient.REST_URI).path("social").request(MediaType.APPLICATION_JSON)
+				.get(JsonNode.class);
+		// Jackson's use of generics here are completely unsafe, but that's another
+		// issue
 		try {
-			oList = mapper.readValue(mapper.treeAsTokens(oJSON),   new TypeReference<List<MDN_SocialPlatform>>(){});
+			oList = mapper.readValue(mapper.treeAsTokens(oJSON), new TypeReference<List<MDN_SocialPlatform>>() {
+			});
 		} catch (JsonParseException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
@@ -400,16 +393,18 @@ public class MDN_RestClient
 	 *
 	 * @return the ranking
 	 */
-	public List<MDN_SimpleUserProfile> getRanking()
-	{
+	public List<MDN_SimpleUserProfile> getRanking() {
 		ObjectMapper mapper = new ObjectMapper();
 		mapper.configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, false);
-		List<MDN_SimpleUserProfile>  oRanking = null;
+		List<MDN_SimpleUserProfile> oRanking = null;
 
-		//Jackson's use of generics here are completely unsafe, but that's another issue
+		// Jackson's use of generics here are completely unsafe, but that's another
+		// issue
 		try {
-			JsonNode oJSON =client.target(MDN_RestClient.REST_URI).path("social").path("ranking").request(MediaType.APPLICATION_JSON).get(JsonNode.class);
-			oRanking = mapper.readValue(mapper.treeAsTokens(oJSON),   new TypeReference<List<MDN_SimpleUserProfile>>(){});
+			JsonNode oJSON = client.target(MDN_RestClient.REST_URI).path("social").path("ranking")
+					.request(MediaType.APPLICATION_JSON).get(JsonNode.class);
+			oRanking = mapper.readValue(mapper.treeAsTokens(oJSON), new TypeReference<List<MDN_SimpleUserProfile>>() {
+			});
 			Collections.sort(oRanking);
 
 		} catch (JsonParseException e) {
@@ -431,10 +426,10 @@ public class MDN_RestClient
 	 * @param strCode the str code
 	 * @return true, if successful
 	 */
-	public boolean setFacebookUID(String strCode) 
-	{
-		Response oResponse = client.target(MDN_RestClient.REST_URI).path("authentication").path("facebook").request(MediaType.APPLICATION_JSON).post(Entity.entity(strCode, MediaType.APPLICATION_JSON));
-		if( Response.Status.ACCEPTED.getStatusCode()!=oResponse.getStatus())
+	public boolean setFacebookUID(String strCode) {
+		Response oResponse = client.target(MDN_RestClient.REST_URI).path("authentication").path("facebook")
+				.request(MediaType.APPLICATION_JSON).post(Entity.entity(strCode, MediaType.APPLICATION_JSON));
+		if (Response.Status.ACCEPTED.getStatusCode() != oResponse.getStatus())
 			return false;
 
 		return true;
@@ -449,18 +444,19 @@ public class MDN_RestClient
 	 * @throws Exception the exception
 	 */
 	@SuppressWarnings("unchecked")
-	public void getSocialFeed(MDN_SocialPlatform oPlatform) throws Exception 
-	{
+	public void getSocialFeed(MDN_SocialPlatform oPlatform) throws Exception {
 		ObjectMapper mapper = new ObjectMapper();
 		mapper.configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, false);
-		List<MDN_SocialPost>  oFeed = null;
+		List<MDN_SocialPost> oFeed = null;
 
-		//Jackson's use of generics here are completely unsafe, but that's another issue
+		// Jackson's use of generics here are completely unsafe, but that's another
+		// issue
 
-		JsonNode oJSON = client.target(MDN_RestClient.REST_URI).path("social").path("feed").path(oPlatform.getName().toLowerCase()).request(MediaType.APPLICATION_JSON).get(JsonNode.class);
-		oFeed = mapper.readValue(mapper.treeAsTokens(oJSON),   new TypeReference<List<MDN_SocialPost>>(){});
+		JsonNode oJSON = client.target(MDN_RestClient.REST_URI).path("social").path("feed")
+				.path(oPlatform.getName().toLowerCase()).request(MediaType.APPLICATION_JSON).get(JsonNode.class);
+		oFeed = mapper.readValue(mapper.treeAsTokens(oJSON), new TypeReference<List<MDN_SocialPost>>() {
+		});
 		Collections.sort(oFeed);
-
 
 		oPlatform.setFeed(oFeed);
 
@@ -472,10 +468,10 @@ public class MDN_RestClient
 	 * @param code the code
 	 * @return true, if successful
 	 */
-	public boolean setFractalUID(String code) 
-	{
-		Response oResponse = client.target(MDN_RestClient.REST_URI).path("authentication").path("fractal").request(MediaType.APPLICATION_JSON).post(Entity.entity(code, MediaType.APPLICATION_JSON));
-		if( Response.Status.ACCEPTED.getStatusCode()!=oResponse.getStatus())
+	public boolean setFractalUID(String code) {
+		Response oResponse = client.target(MDN_RestClient.REST_URI).path("authentication").path("fractal")
+				.request(MediaType.APPLICATION_JSON).post(Entity.entity(code, MediaType.APPLICATION_JSON));
+		if (Response.Status.ACCEPTED.getStatusCode() != oResponse.getStatus())
 			return false;
 
 		return true;
@@ -485,18 +481,18 @@ public class MDN_RestClient
 	/**
 	 * Sets the twitter UID.
 	 *
-	 * @param token the token
+	 * @param token    the token
 	 * @param verifier the verifier
 	 * @return true, if successful
 	 * @throws Exception the exception
 	 */
-	public boolean setTwitterUID(String token, String verifier) throws Exception
-	{
+	public boolean setTwitterUID(String token, String verifier) throws Exception {
 		MDN_OAuthToken oToken = new MDN_OAuthToken();
 		oToken.setToken(token);
 		oToken.setVerifier(verifier);
-		Response oResponse = client.target(MDN_RestClient.REST_URI).path("authentication").path("twitter").request(MediaType.APPLICATION_JSON).post(Entity.entity(oToken, MediaType.APPLICATION_JSON));
-		checkForError( oResponse, Response.Status.ACCEPTED.getStatusCode());
+		Response oResponse = client.target(MDN_RestClient.REST_URI).path("authentication").path("twitter")
+				.request(MediaType.APPLICATION_JSON).post(Entity.entity(oToken, MediaType.APPLICATION_JSON));
+		checkForError(oResponse, Response.Status.ACCEPTED.getStatusCode());
 
 		return true;
 
@@ -509,9 +505,9 @@ public class MDN_RestClient
 	 * @param strUsername the str username
 	 * @return the referred users
 	 */
-	public List<MDN_UserProfile> getReferredUsers(String strPlatform, String strUsername)
-	{
-		List<MDN_UserProfile> oProfiles = client.target(MDN_RestClient.REST_URI).path("social").path("feed").path(strPlatform.toLowerCase()).request(MediaType.APPLICATION_JSON).get(List.class);
+	public List<MDN_UserProfile> getReferredUsers(String strPlatform, String strUsername) {
+		List<MDN_UserProfile> oProfiles = client.target(MDN_RestClient.REST_URI).path("social").path("feed")
+				.path(strPlatform.toLowerCase()).request(MediaType.APPLICATION_JSON).get(List.class);
 
 		return oProfiles;
 	}
@@ -522,9 +518,9 @@ public class MDN_RestClient
 	 * @param strUsername the str username
 	 * @return the available avatars
 	 */
-	public List<MDN_UserProfileImage> getAvailableAvatars(String strUsername)
-	{
-		List<MDN_UserProfileImage> oAvatars = client.target(MDN_RestClient.REST_URI).path("users").path(strUsername).path("avatars").request(MediaType.APPLICATION_JSON).get(List.class);
+	public List<MDN_UserProfileImage> getAvailableAvatars(String strUsername) {
+		List<MDN_UserProfileImage> oAvatars = client.target(MDN_RestClient.REST_URI).path("users").path(strUsername)
+				.path("avatars").request(MediaType.APPLICATION_JSON).get(List.class);
 
 		return oAvatars;
 	}
@@ -533,13 +529,13 @@ public class MDN_RestClient
 	 * Sets the avatar.
 	 *
 	 * @param strUsername the str username
-	 * @param oImage the o image
+	 * @param oImage      the o image
 	 * @return true, if successful
 	 */
-	public boolean setAvatar(String strUsername, MDN_UserProfileImage oImage)
-	{
-		Response oResponse = client.target(MDN_RestClient.REST_URI).path("users").path(strUsername).path("avatars").request(MediaType.APPLICATION_JSON).post(Entity.entity(oImage, MediaType.APPLICATION_JSON));
-		if( Response.Status.ACCEPTED.getStatusCode()!=oResponse.getStatus())
+	public boolean setAvatar(String strUsername, MDN_UserProfileImage oImage) {
+		Response oResponse = client.target(MDN_RestClient.REST_URI).path("users").path(strUsername).path("avatars")
+				.request(MediaType.APPLICATION_JSON).post(Entity.entity(oImage, MediaType.APPLICATION_JSON));
+		if (Response.Status.ACCEPTED.getStatusCode() != oResponse.getStatus())
 			return false;
 
 		return true;
@@ -552,20 +548,18 @@ public class MDN_RestClient
 	 * @return the profile
 	 * @throws Exception the exception
 	 */
-	public MDN_SimpleUserProfile getSimpleUserProfile(String strUserName) throws Exception 
-	{
-		try
-		{
-			MDN_SimpleUserProfile oProfile = client.target(MDN_RestClient.REST_URI).path("social").path("profiles").path(strUserName).queryParam("simple", "true").request(MediaType.APPLICATION_JSON).get(MDN_UserProfile.class);
+	public MDN_SimpleUserProfile getSimpleUserProfile(String strUserName) throws Exception {
+		try {
+			MDN_SimpleUserProfile oProfile = client.target(MDN_RestClient.REST_URI).path("social").path("profiles")
+					.path(strUserName).queryParam("simple", "true").request(MediaType.APPLICATION_JSON)
+					.get(MDN_UserProfile.class);
 			return oProfile;
+		} catch (Exception e) {
+			throw new Exception("Error Requesting profile " + strUserName);
 		}
-		catch(Exception e)
-		{
-			throw new Exception("Error Requesting profile " +strUserName);
-		}
-
 
 	}
+
 	/**
 	 * Gets the profile.
 	 *
@@ -573,18 +567,14 @@ public class MDN_RestClient
 	 * @return the profile
 	 * @throws Exception the exception
 	 */
-	public MDN_UserProfile getProfile(String strUserName) throws Exception 
-	{
-		try
-		{
-			MDN_UserProfile oProfile = client.target(MDN_RestClient.REST_URI).path("social").path("profiles").path(strUserName).request(MediaType.APPLICATION_JSON).get(MDN_UserProfile.class);
+	public MDN_UserProfile getProfile(String strUserName) throws Exception {
+		try {
+			MDN_UserProfile oProfile = client.target(MDN_RestClient.REST_URI).path("social").path("profiles")
+					.path(strUserName).request(MediaType.APPLICATION_JSON).get(MDN_UserProfile.class);
 			return oProfile;
+		} catch (Exception e) {
+			throw new Exception("Error Requesting profile " + strUserName);
 		}
-		catch(Exception e)
-		{
-			throw new Exception("Error Requesting profile " +strUserName);
-		}
-
 
 	}
 
@@ -593,18 +583,14 @@ public class MDN_RestClient
 	 *
 	 * @return the profile
 	 */
-	public MDN_UserProfile getProfile() 
-	{
-		try
-		{
-			MDN_UserProfile oProfile = client.target(MDN_RestClient.REST_URI).path("social").path("profiles").path("me").request(MediaType.APPLICATION_JSON).get(MDN_UserProfile.class);
+	public MDN_UserProfile getProfile() {
+		try {
+			MDN_UserProfile oProfile = client.target(MDN_RestClient.REST_URI).path("social").path("profiles").path("me")
+					.request(MediaType.APPLICATION_JSON).get(MDN_UserProfile.class);
 			return oProfile;
-		}
-		catch(Exception e)
-		{
+		} catch (Exception e) {
 			return null;
 		}
-
 
 	}
 
@@ -613,9 +599,9 @@ public class MDN_RestClient
 	 *
 	 * @return the system health
 	 */
-	public MDN_SystemHealthObject getSystemHealth()
-	{
-		MDN_SystemHealthObject Health = client.target(MDN_RestClient.REST_URI).path("system").path("health").request(MediaType.APPLICATION_JSON).get(MDN_SystemHealthObject.class);
+	public MDN_SystemHealthObject getSystemHealth() {
+		MDN_SystemHealthObject Health = client.target(MDN_RestClient.REST_URI).path("system").path("health")
+				.request(MediaType.APPLICATION_JSON).get(MDN_SystemHealthObject.class);
 
 		return Health;
 	}
@@ -625,9 +611,9 @@ public class MDN_RestClient
 	 *
 	 * @return the fractal auth URL
 	 */
-	public String getFractalAuthURL() 	
-	{
-		String strUrl=client.target(MDN_RestClient.REST_URI).path("authentication").path("fractal").request(MediaType.APPLICATION_JSON).get(String.class);
+	public String getFractalAuthURL() {
+		String strUrl = client.target(MDN_RestClient.REST_URI).path("authentication").path("fractal")
+				.request(MediaType.APPLICATION_JSON).get(String.class);
 		return strUrl;
 	}
 
@@ -637,49 +623,46 @@ public class MDN_RestClient
 	 * @param token the token
 	 * @return true, if successful
 	 */
-	public boolean validateActivationToken(String token) 	
-	{
-		Response oResponse=client.target(MDN_RestClient.REST_URI).path("account").path("activation").path(token).request(MediaType.APPLICATION_JSON).get();
-		if( Response.Status.ACCEPTED.getStatusCode()!=oResponse.getStatus())
+	public boolean validateActivationToken(String token) {
+		Response oResponse = client.target(MDN_RestClient.REST_URI).path("account").path("activation").path(token)
+				.request(MediaType.APPLICATION_JSON).get();
+		if (Response.Status.ACCEPTED.getStatusCode() != oResponse.getStatus())
 			return false;
 
-		return true;	
+		return true;
 	}
 
-
-	public boolean requestEmailVerification(String currentUser) 
-	{
-		Response oResponse=client.target(MDN_RestClient.REST_URI).path("account").path("verifymail").request(MediaType.APPLICATION_JSON).get();
-		if( Response.Status.OK.getStatusCode()!=oResponse.getStatus())
+	public boolean requestEmailVerification(String currentUser) {
+		Response oResponse = client.target(MDN_RestClient.REST_URI).path("account").path("verifymail")
+				.request(MediaType.APPLICATION_JSON).get();
+		if (Response.Status.OK.getStatusCode() != oResponse.getStatus())
 			return false;
 
-		return true;	
+		return true;
 
 	}
 
 	/**
 	 * Gets the fractal auth token.
 	 *
-	 * @param strClientID the str client ID
+	 * @param strClientID     the str client ID
 	 * @param strClientSecret the str client secret
-	 * @param strBaseURL the str base URL
-	 * @param strRedirectURL the str redirect URL
-	 * @param strCode the str code
+	 * @param strBaseURL      the str base URL
+	 * @param strRedirectURL  the str redirect URL
+	 * @param strCode         the str code
 	 * @return the fractal auth token
 	 */
-	public String getFractalAuthToken(String strClientID, String strClientSecret, String strBaseURL, String strRedirectURL, String strCode)
-	{
+	public String getFractalAuthToken(String strClientID, String strClientSecret, String strBaseURL,
+			String strRedirectURL, String strCode) {
 
-		Response oResponse  =client.target(strBaseURL).path("token")
-				.queryParam("client_id", strClientID)
-				.queryParam("redirect_uri", strRedirectURL)
-				.queryParam("client_secret", strClientSecret)
-				.queryParam("code", strCode)
-				.queryParam("grant_type", "authorization_code")
+		Response oResponse = client.target(strBaseURL).path("token").queryParam("client_id", strClientID)
+				.queryParam("redirect_uri", strRedirectURL).queryParam("client_secret", strClientSecret)
+				.queryParam("code", strCode).queryParam("grant_type", "authorization_code")
 				.request(MediaType.APPLICATION_JSON).post(Entity.entity(null, MediaType.APPLICATION_JSON));
-		String strResponse =  oResponse.readEntity(String.class);
-		//		JsonNode oNode = oResponse.readEntity(JsonNode.class);
-		strResponse=strResponse.substring(strResponse.indexOf("access_token")+15, strResponse.indexOf("token_type")-3);
+		String strResponse = oResponse.readEntity(String.class);
+		// JsonNode oNode = oResponse.readEntity(JsonNode.class);
+		strResponse = strResponse.substring(strResponse.indexOf("access_token") + 15,
+				strResponse.indexOf("token_type") - 3);
 		return strResponse;
 	}
 
@@ -688,10 +671,9 @@ public class MDN_RestClient
 	 *
 	 * @param strBearer the new authentication bearer
 	 */
-	public void setAuthenticationBearer(String strBearer) 
-	{
+	public void setAuthenticationBearer(String strBearer) {
 		Feature feature = OAuth2ClientSupport.feature(strBearer);
-		client.register(feature);	
+		client.register(feature);
 	}
 
 	/**
@@ -700,10 +682,10 @@ public class MDN_RestClient
 	 * @param strBaseURL the str base URL
 	 * @return the fractal information
 	 */
-	public String getFractalInformation(String strBaseURL) 
-	{
-		strBaseURL=strBaseURL.substring(0, strBaseURL.lastIndexOf("/"));
-		JsonNode oJSON   =client.target(strBaseURL).path("api").path("me").request(MediaType.APPLICATION_JSON).get(JsonNode.class);
+	public String getFractalInformation(String strBaseURL) {
+		strBaseURL = strBaseURL.substring(0, strBaseURL.lastIndexOf("/"));
+		JsonNode oJSON = client.target(strBaseURL).path("api").path("me").request(MediaType.APPLICATION_JSON)
+				.get(JsonNode.class);
 		String strResponse = oJSON.get("did").asText();
 		return strResponse;
 	}
@@ -714,15 +696,12 @@ public class MDN_RestClient
 	 * @param strFeedLink the str feed link
 	 * @return the twitter embedd code
 	 */
-	public String getTwitterEmbeddCode(String strFeedLink) 
-	{
-		JsonNode oJSON= null;
-		try
-		{
-			oJSON   =client.target("https://publish.twitter.com").path("oembed").queryParam("url",strFeedLink).request(MediaType.APPLICATION_JSON).get(JsonNode.class);
-		}
-		catch(Exception ex)
-		{
+	public String getTwitterEmbeddCode(String strFeedLink) {
+		JsonNode oJSON = null;
+		try {
+			oJSON = client.target("https://publish.twitter.com").path("oembed").queryParam("url", strFeedLink)
+					.request(MediaType.APPLICATION_JSON).get(JsonNode.class);
+		} catch (Exception ex) {
 			return null;
 		}
 
@@ -734,69 +713,83 @@ public class MDN_RestClient
 	 * Sets the user setting.
 	 *
 	 * @param strUsername the str username
-	 * @param oSetting the o setting
+	 * @param oSetting    the o setting
 	 * @return true, if successful
 	 */
-	public boolean setUserSetting(String strUsername, MDN_UserSetting oSetting)
-	{
-		Response oResponse = client.target(MDN_RestClient.REST_URI).path("users").path(strUsername).path("settings").request(MediaType.APPLICATION_JSON).post(Entity.entity(oSetting, MediaType.APPLICATION_JSON));
-		if( Response.Status.ACCEPTED.getStatusCode()!=oResponse.getStatus())
+	public boolean setUserSetting(String strUsername, MDN_UserSetting oSetting) {
+		Response oResponse = client.target(MDN_RestClient.REST_URI).path("users").path(strUsername).path("settings")
+				.request(MediaType.APPLICATION_JSON).post(Entity.entity(oSetting, MediaType.APPLICATION_JSON));
+		if (Response.Status.ACCEPTED.getStatusCode() != oResponse.getStatus())
 			return false;
 
-		return true;		
+		return true;
 	}
 
 	/**
 	 * Requests verification nonce from server
+	 * 
 	 * @param wallet - the wallet address
 	 * @return nonce as string
 	 */
-	public String getEthereumVerificationNonce(String wallet) throws Exception
-        {
-               	Response oResponse = client.target(MDN_RestClient.REST_URI).path("authentication")
-                       .path("ethereum").path(wallet).request(MediaType.APPLICATION_JSON)
-                       .get();
-               	checkForError( oResponse, Response.Status.OK.getStatusCode());
-             	MDN_Token wrapper = oResponse.readEntity( MDN_Token.class );
+	public String getEthereumVerificationNonce(String wallet) throws Exception {
+		Response oResponse = client.target(MDN_RestClient.REST_URI).path("authentication").path("ethereum").path(wallet)
+				.request(MediaType.APPLICATION_JSON).get();
+		checkForError(oResponse, Response.Status.OK.getStatusCode());
+		MDN_Token wrapper = oResponse.readEntity(MDN_Token.class);
 		return wrapper.getToken();
 	}
-	
+
 	/**
 	 * Sends signed nonce to server in request for verification
-	 * @param wallet - the wallet address
-	 * @param nonce - nonce previously received from calling /GET
+	 * 
+	 * @param wallet    - the wallet address
+	 * @param nonce     - nonce previously received from calling /GET
 	 * @param signature - created signature
 	 */
-	public void verifyEthereumWallet(String wallet, String nonce, String signature) throws Exception
-	{
+	public void verifyEthereumWallet(String wallet, String nonce, String signature) throws Exception {
 		MDN_OAuthToken wrapper = new MDN_OAuthToken();
 		wrapper.setToken(nonce);
 		wrapper.setVerifier(signature);
-		Response oResponse = client.target(MDN_RestClient.REST_URI).path("authentication").
-			path("ethereum").path(wallet).request(MediaType.APPLICATION_JSON).
-			post(Entity.entity(wrapper, MediaType.APPLICATION_JSON));
-		checkForError( oResponse, Response.Status.ACCEPTED.getStatusCode());
+		Response oResponse = client.target(MDN_RestClient.REST_URI).path("authentication").path("ethereum").path(wallet)
+				.request(MediaType.APPLICATION_JSON).post(Entity.entity(wrapper, MediaType.APPLICATION_JSON));
+		checkForError(oResponse, Response.Status.ACCEPTED.getStatusCode());
+	}
+
+	/**
+	 * Sends signed nonce to server in request for verification
+	 * 
+	 * @param wallet    - the wallet address
+	 * @param nonce     - nonce previously received from calling /GET
+	 * @param signature - created signature
+	 */
+	public void loginWithWeb3(String wallet, String nonce, String signature) throws Exception {
+		MDN_OAuthToken wrapper = new MDN_OAuthToken();
+		wrapper.setToken(nonce);
+		wrapper.setVerifier(signature);
+		Response oResponse = client.target(MDN_RestClient.REST_URI).path("authentication").path("ethereum").path(wallet)
+				.path("challenge").request(MediaType.APPLICATION_JSON)
+				.post(Entity.entity(wrapper, MediaType.APPLICATION_JSON));
+		checkForError(oResponse, Response.Status.OK.getStatusCode());
+		MDN_Token oToken = oResponse.readEntity(MDN_Token.class);
+		Feature feature = OAuth2ClientSupport.feature(oToken.getToken());
+		client = ClientBuilder.newClient();
+		client.register(feature);
 	}
 
 	/**
 	 * Check for error.
 	 *
 	 * @param response the response
-	 * @param status the status
+	 * @param status   the status
 	 * @throws Exception the exception
 	 */
-	protected void checkForError( Response response, int status )throws Exception
-	{
-		if( status!=response.getStatus())
-		{
+	protected void checkForError(Response response, int status) throws Exception {
+		if (status != response.getStatus()) {
 			Exception oEx;
-			try
-			{
+			try {
 				MDN_ErrorMessage oMessage = getErrorMessage(response);
 				oEx = new Exception(oMessage.getErrorMessage());
-			}
-			catch(Exception ex)
-			{
+			} catch (Exception ex) {
 				oEx = new Exception(response.getStatusInfo().toString());
 			}
 			throw oEx;
@@ -810,26 +803,21 @@ public class MDN_RestClient
 	 * @param response the response
 	 * @return the error message
 	 */
-	public MDN_ErrorMessage getErrorMessage( Response response )
-	{
+	public MDN_ErrorMessage getErrorMessage(Response response) {
 		return response.readEntity(MDN_ErrorMessage.class);
 
 	}
-	private String loadProperty(String property)
-	{
-		if(System.getProperty(property)!=null)
-		{
-			if(System.getProperty(property).length()>0)
+
+	private String loadProperty(String property) {
+		if (System.getProperty(property) != null) {
+			if (System.getProperty(property).length() > 0)
 				return System.getProperty(property);
 		}
-		if(System.getenv(property)!=null)
-		{
-			if(System.getenv(property).length()>0)
-				return  System.getenv("RESTURI");
+		if (System.getenv(property) != null) {
+			if (System.getenv(property).length() > 0)
+				return System.getenv("RESTURI");
 		}
 		return "";
 	}
-
-
 
 }
