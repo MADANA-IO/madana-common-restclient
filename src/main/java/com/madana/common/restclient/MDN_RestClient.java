@@ -250,7 +250,7 @@ public class MDN_RestClient {
 	 * @return the MD N user
 	 * @throws Exception the exception
 	 */
-	private MDN_User createUser(MDN_User oUser, String strToken) throws Exception {
+	public MDN_User createUser(MDN_User oUser, String strToken) throws Exception {
 		Response response;
 		if (strToken != null) {
 			response = client.target(MDN_RestClient.REST_URI).path("users").queryParam("referrer", strToken)
