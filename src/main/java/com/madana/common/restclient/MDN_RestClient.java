@@ -497,6 +497,22 @@ public class MDN_RestClient {
 		return true;
 
 	}
+	
+	/**
+	 * Sets the fractal UID.
+	 *
+	 * @param code the code
+	 * @return true, if successful
+	 */
+	public boolean removeLinkedAccount(String username, String platform, String ident) {
+		Response oResponse = client.target(MDN_RestClient.REST_URI).path("users").path(username).path("social").path(platform).path(ident)
+				.request(MediaType.APPLICATION_JSON).delete();
+		if (Response.Status.ACCEPTED.getStatusCode() != oResponse.getStatus())
+			return false;
+
+		return true;
+
+	}
 
 	/**
 	 * Gets the referred users.
