@@ -568,7 +568,7 @@ public class MDN_RestClient {
 		try {
 			MDN_SimpleUserProfile oProfile = client.target(MDN_RestClient.REST_URI).path("social").path("profiles")
 					.path(strUserName).path("simple").request(MediaType.APPLICATION_JSON)
-					.get(MDN_UserProfile.class);
+					.get(MDN_SimpleUserProfile.class);
 			return oProfile;
 		} catch (Exception e) {
 			throw new Exception("Error Requesting profile " + strUserName);
