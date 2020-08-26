@@ -85,7 +85,7 @@
 		</plugins>
 
 	</build>
-	<version>0.1.39</version>
+	<version>0.1.40-master.1</version>
 
 	<distributionManagement>
 		<repository>
