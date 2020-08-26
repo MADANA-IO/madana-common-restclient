@@ -58,7 +58,7 @@
 		<dependency>
 			<groupId>com.madana.common</groupId>
 			<artifactId>madana-common-datastructures</artifactId>
-			<version>0.1.23</version>
+			<version>0.1.25</version>
 		</dependency>
 
 	</dependencies>
@@ -85,7 +85,7 @@
 		</plugins>
 
 	</build>
-	<version>0.1.39</version>
+	<version>0.1.40-master.1</version>
 
 	<distributionManagement>
 		<repository>
