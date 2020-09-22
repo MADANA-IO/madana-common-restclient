@@ -393,7 +393,7 @@ public class MDN_RestClient {
 	 *
 	 * @return the ranking
 	 */
-	public List<MDN_SimpleUserProfile> getRanking() {
+	public List<MDN_SimpleUserProfile> getRanking(int offset, int limit) {
 		ObjectMapper mapper = new ObjectMapper();
 		mapper.configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, false);
 		List<MDN_SimpleUserProfile> oRanking = null;
@@ -402,6 +402,7 @@ public class MDN_RestClient {
 		// issue
 		try {
 			JsonNode oJSON = client.target(MDN_RestClient.REST_URI).path("social").path("ranking")
+					.queryParam("offset", offset).queryParam("limit",limit)
 					.request(MediaType.APPLICATION_JSON).get(JsonNode.class);
 			oRanking = mapper.readValue(mapper.treeAsTokens(oJSON), new TypeReference<List<MDN_SimpleUserProfile>>() {
 			});
