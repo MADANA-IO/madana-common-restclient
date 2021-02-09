@@ -53,12 +53,12 @@
 		<dependency>
 			<groupId>com.madana.common</groupId>
 			<artifactId>madana-common-security</artifactId>
-			<version>0.1.27</version>
+			<version>0.1.572</version>
 		</dependency>
 		<dependency>
 			<groupId>com.madana.common</groupId>
 			<artifactId>madana-common-datastructures</artifactId>
-			<version>0.1.26</version>
+			<version>0.1.27</version>
 		</dependency>
 
 	</dependencies>
